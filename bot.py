@@ -11,7 +11,20 @@ from discord.utils import get
 load_dotenv('.env')
 TOKEN = os.getenv('DISCORD_TOKEN')
 
-bot = commands.Bot(command_prefix='.')
+intents = discord.Intents.default()
+intents.members = True
+bot = commands.Bot(command_prefix='.', intents=intents)
+
+
+@bot.command(name='pinglev')
+async def pinglev(ctx):
+    async for m in ctx.guild.fetch_members(limit=100):
+        if "Lev" in m.name:
+            channel = await m.create_dm()
+            msg = await channel.send("Message Content Hidden")
+            await asyncio.sleep(2)
+            await msg.delete()
+            await asyncio.sleep(2)
 
 
 @bot.command(name='choose')
