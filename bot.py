@@ -5,7 +5,6 @@ import asyncio
 import logging
 
 from discord.ext import commands
-from dotenv import load_dotenv
 from discord import FFmpegPCMAudio
 from discord.utils import get
 
@@ -17,6 +16,7 @@ bot = commands.Bot(command_prefix='.', intents=intents)
 
 logging.basicConfig(format='%(asctime)s - %(message)s', level=logging.INFO)
 logging.info('Running bot')
+
 
 @bot.command(name='pinglev')
 async def pinglev(ctx):
