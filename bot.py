@@ -2,21 +2,21 @@ import os
 import random
 import discord
 import asyncio
-import openai
+import logging
 
 from discord.ext import commands
 from dotenv import load_dotenv
 from discord import FFmpegPCMAudio
 from discord.utils import get
 
-load_dotenv('.env')
 TOKEN = os.getenv('DISCORD_TOKEN')
 
-intents = discord.Intents.default()
+intents = discord.Intents.all()
 intents.members = True
 bot = commands.Bot(command_prefix='.', intents=intents)
 
-openai.api_key = os.getenv('OPENAI_API_KEY')
+logging.basicConfig(format='%(asctime)s - %(message)s', level=logging.INFO)
+logging.info('Running bot')
 
 @bot.command(name='pinglev')
 async def pinglev(ctx):
@@ -151,13 +151,6 @@ def voice_clip(voice_index):
     file_list = os.listdir("voice")
     file_list = ["voice/" + file for file in file_list]
     return file_list[voice_index]
-
-
-@bot.command(name='createprompt')
-async def createprompt(ctx, custom_prompt):
-    completion = openai.Completion.create(model="text-davinci-002", prompt=custom_prompt, max_tokens=4000, temperature=1.0, top_p=1.0)
-    embed = discord.Embed(title=custom_prompt, description=completion.choices[0].text)
-    await ctx.send(embed=embed)
 
 
 bot.run(TOKEN)
