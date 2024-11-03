@@ -17,6 +17,9 @@ RUN apt-get install -y ffmpeg
 COPY requirements.txt .
 RUN pip install -r requirements.txt
 
+# Use /data for persistent data
+VOLUME ["/data"]
+
 # Copy the entire folder and run the application:
 COPY . .
 CMD ["python3", "bot.py"]

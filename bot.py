@@ -3,6 +3,8 @@ import random
 import discord
 import asyncio
 import logging
+import sqlite3
+from datetime import datetime
 
 from discord.ext import commands
 from discord import FFmpegPCMAudio
@@ -16,6 +18,47 @@ bot = commands.Bot(command_prefix='.', intents=intents)
 
 logging.basicConfig(format='%(asctime)s - %(message)s', level=logging.INFO)
 logging.info('Running bot')
+
+connection = sqlite3.connect('/data/celebrations.db')
+cursor = connection.cursor()
+cursor.execute('''CREATE TABLE IF NOT EXISTS celebrations (
+                    name TEXT NOT NULL,
+                    date DATE NOT NULL,
+                    celebrated BOOLEAN NOT NULL
+                  )''')
+connection.commit()
+
+@bot.command(name='celebration')
+async def add_celebration(ctx, *, name):
+    current_date = datetime.now().date()
+    # sql injection isn't real
+    cursor.execute('''
+        INSERT INTO celebrations (name, date, celebrated)
+        VALUES (?, ?, ?)
+        ''', (name, current_date, False))
+    connection.commit()
+    response = f"added {name} to celebrations"
+    await ctx.send(response)
+
+
+@bot.command(name='celebrations')
+async def print_uncelebrated(ctx):
+    cursor.execute(''' SELECT name, date FROM celebrations WHERE celebrated = 0 ORDER BY date ''')
+    celebrations = ""
+    for name, date in cursor.fetchall():
+        celebrations += f"{date}: {name}\n"
+    await ctx.send(celebrations)
+
+
+@bot.command(name='celebrate')
+async def celebrate(ctx, *, name):
+    cursor.execute(''' UPDATE celebrations SET celebrated = 1 WHERE name = ? ''', (name,))
+    connection.commit()
+    if cursor.rowcount == 0:
+        response = f"{name} isn't in the queue"
+    else:
+        response = f"🎉 {name} 🎉"
+    await ctx.send(response)
 
 
 @bot.command(name='pinglev')
